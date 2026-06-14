@@ -55,7 +55,9 @@ function openLightbox(id) {
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open');
   document.getElementById('lightbox').setAttribute('aria-hidden','true');
-  document.getElementById('lightboxImage').src = '';
+  const lightboxImage = document.getElementById('lightboxImage');
+  lightboxImage.removeAttribute('src');
+  lightboxImage.alt = '';
 }
 
 function moveLightbox(direction) {
