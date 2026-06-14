@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SKZOO Airport Pop-Up Gallery</title>
+  <meta name="description" content="Presentation gallery for SKZOO Airport Pop-Up renders, isometric layout, wide views, and detail shots." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="#top" aria-label="SKZOO Airport gallery home">
+        <span class="brand-mark">SKZ</span>
+        <span class="brand-copy">Airport Pop-Up Gallery</span>
+      </a>
+      <nav aria-label="Gallery navigation">
+        <a href="#overview">Overview</a>
+        <a href="#wide">Wide Renders</a>
+        <a href="#details">Details</a>
+        <a href="#contact-sheet">Contact Sheet</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" id="overview">
+      <div class="hero-copy">
+        <p class="eyebrow">SKZOO Airport Pop-Up Store</p>
+        <h1>Presentation Gallery</h1>
+        <p class="lede">A clean online review deck for the full experience: locked ISO, wide photography renders, and close-up detail shots.</p>
+        <div class="hero-actions">
+          <button class="primary" data-open-id="0">View master ISO</button>
+          <a class="secondary" href="#contact-sheet">Browse all images</a>
+        </div>
+      </div>
+      <button class="hero-media image-button" data-open-id="0" aria-label="Open master ISO layout">
+        <img src="assets/images/00-master-iso.png" alt="Master isometric layout of the SKZOO Airport pop-up" />
+      </button>
+    </section>
+
+    <section class="section feature-strip">
+      <div>
+        <span class="stat">14</span>
+        <p>project images</p>
+      </div>
+      <div>
+        <span class="stat">3</span>
+        <p>gallery sections</p>
+      </div>
+      <div>
+        <span class="stat">16:9</span>
+        <p>presentation-ready wides</p>
+      </div>
+      <div>
+        <span class="stat">1:1</span>
+        <p>detail references</p>
+      </div>
+    </section>
+
+    <section class="section" id="wide">
+      <div class="section-heading">
+        <p class="eyebrow">01 / Spatial Story</p>
+        <h2>Wide Renders</h2>
+        <p>Use these as the primary client-facing views: full experience, merch zone, check-in, Lost & Found, and main runway.</p>
+      </div>
+      <div class="gallery-grid featured-grid" data-category="Wide Renders"></div>
+    </section>
+
+    <section class="section" id="details">
+      <div class="section-heading">
+        <p class="eyebrow">02 / Texture + Fixtures</p>
+        <h2>Detail Shots</h2>
+        <p>Close-ups for maquettes, luggage, counters, apparel racks, printed panels, carpet, and object detailing.</p>
+      </div>
+      <div class="gallery-grid detail-grid" data-category="Detail Shots"></div>
+    </section>
+
+    <section class="section" id="contact-sheet">
+      <div class="section-heading compact">
+        <p class="eyebrow">03 / Full Library</p>
+        <h2>Contact Sheet</h2>
+      </div>
+      <div class="filters" role="toolbar" aria-label="Filter gallery">
+        <button class="filter active" data-filter="All">All</button>
+        <button class="filter" data-filter="Master Plan">Master Plan</button>
+        <button class="filter" data-filter="Wide Renders">Wide Renders</button>
+        <button class="filter" data-filter="Detail Shots">Detail Shots</button>
+      </div>
+      <div class="contact-grid" id="contactGrid"></div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Image viewer">
+    <button class="lightbox-close" id="closeLightbox" aria-label="Close image viewer">×</button>
+    <button class="lightbox-nav prev" id="prevImage" aria-label="Previous image">‹</button>
+    <figure class="lightbox-card">
+      <img id="lightboxImage" src="" alt="" />
+      <figcaption>
+        <div>
+          <p id="lightboxCategory" class="eyebrow"></p>
+          <h3 id="lightboxTitle"></h3>
+          <p id="lightboxDesc"></p>
+        </div>
+        <a id="downloadImage" href="#" download>Download PNG</a>
+      </figcaption>
+    </figure>
+    <button class="lightbox-nav next" id="nextImage" aria-label="Next image">›</button>
+  </div>
+
+  <script src="assets/gallery-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
