@@ -382,93 +382,6 @@
       border-radius: 2px;
     }
 
-    .gallery-shell {
-      position: relative;
-      border: 1px solid rgba(120, 204, 255, 0.16);
-      border-radius: 15px;
-      background:
-        linear-gradient(180deg, rgba(7, 20, 36, 0.54), rgba(2, 8, 16, 0.34));
-      box-shadow: inset 0 0 44px rgba(88, 189, 255, 0.035);
-      overflow: hidden;
-    }
-
-    .gallery-scroll {
-      max-height: min(78vh, 820px);
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      scroll-behavior: smooth;
-      padding: 0 16px 16px 0;
-      scrollbar-color: rgba(88, 189, 255, 0.72) rgba(255, 255, 255, 0.06);
-      scrollbar-width: thin;
-    }
-
-    .gallery-scroll:focus-visible {
-      outline: 2px solid rgba(88, 189, 255, 0.8);
-      outline-offset: -2px;
-    }
-
-    .gallery-scroll::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    .gallery-scroll::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.055);
-      border-radius: 999px;
-    }
-
-    .gallery-scroll::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #67c3ff, #1f79c9);
-      border-radius: 999px;
-    }
-
-    .gallery-arrows {
-      position: absolute;
-      right: 16px;
-      top: 16px;
-      z-index: 5;
-      display: grid;
-      gap: 10px;
-    }
-
-    .gallery-arrow {
-      width: 42px;
-      height: 42px;
-      border: 1px solid rgba(88, 189, 255, 0.46);
-      border-radius: 999px;
-      color: var(--blue);
-      background: rgba(1, 8, 16, 0.78);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32), inset 0 0 22px rgba(88, 189, 255, 0.08);
-      display: grid;
-      place-items: center;
-      transition: 180ms ease;
-    }
-
-    .gallery-arrow::before {
-      content: "";
-      width: 11px;
-      height: 11px;
-      border-top: 2px solid currentColor;
-      border-right: 2px solid currentColor;
-    }
-
-    .gallery-arrow.up::before {
-      transform: translateY(3px) rotate(-45deg);
-    }
-
-    .gallery-arrow.down::before {
-      transform: translateY(-3px) rotate(135deg);
-    }
-
-    .gallery-arrow:hover {
-      border-color: rgba(88, 189, 255, 0.85);
-      background: rgba(5, 24, 44, 0.9);
-    }
-
-    .gallery-arrow:disabled {
-      cursor: default;
-      opacity: 0.32;
-    }
-
     .gallery {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -610,6 +523,71 @@
       font-size: 17px;
     }
 
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 30px;
+      background: rgba(0, 5, 12, 0.9);
+      backdrop-filter: blur(18px);
+    }
+
+    .lightbox.open {
+      display: grid;
+    }
+
+    .lightbox figure {
+      width: min(1120px, 100%);
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(4, 16, 30, 0.96);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .lightbox img {
+      width: 100%;
+      max-height: 78vh;
+      object-fit: contain;
+      background: #02070f;
+      display: block;
+    }
+
+    .lightbox figcaption {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 20px;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .lightbox h3 {
+      margin: 0 0 5px;
+      color: var(--ink);
+      font-size: 20px;
+    }
+
+    .lightbox p {
+      margin: 0;
+    }
+
+    .close {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 28px;
+      line-height: 1;
+    }
+
     @media (max-width: 840px) {
       .page {
         padding: 22px 18px 32px;
@@ -666,21 +644,6 @@
         grid-template-columns: 1fr;
       }
 
-      .gallery-scroll {
-        max-height: 68vh;
-        padding-right: 12px;
-      }
-
-      .gallery-arrows {
-        right: 12px;
-        top: 12px;
-      }
-
-      .gallery-arrow {
-        width: 38px;
-        height: 38px;
-      }
-
       .card,
       .card.large {
         min-height: 285px;
@@ -688,6 +651,14 @@
 
       .cta {
         grid-template-columns: 1fr;
+      }
+
+      .lightbox {
+        padding: 14px;
+      }
+
+      .lightbox figcaption {
+        display: block;
       }
     }
   </style>
@@ -736,15 +707,7 @@
       <span class="grid-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
     </section>
 
-    <section class="gallery-shell" id="gallery" aria-label="SKZOO gallery">
-      <div class="gallery-arrows" aria-label="Gallery scroll controls">
-        <button class="gallery-arrow up" id="scrollGalleryUp" type="button" aria-label="Scroll gallery up"></button>
-        <button class="gallery-arrow down" id="scrollGalleryDown" type="button" aria-label="Scroll gallery down"></button>
-      </div>
-      <div class="gallery-scroll" id="galleryScroll" tabindex="0" aria-label="Scrollable gallery images">
-        <div class="gallery" id="galleryGrid"></div>
-      </div>
-    </section>
+    <section class="gallery" id="gallery" aria-label="SKZOO gallery"></section>
 
     <section class="cta" id="project">
       <div class="cta-logo">SKZ<span>Airport</span></div>
@@ -757,12 +720,28 @@
     </section>
   </main>
 
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="close" id="closeLightbox" type="button" aria-label="Close image viewer">x</button>
+    <figure>
+      <img id="lightboxImage" alt="" />
+      <figcaption>
+        <div>
+          <h3 id="lightboxTitle"></h3>
+          <p id="lightboxDesc"></p>
+        </div>
+        <a class="btn" id="downloadImage" href="#" download>Download</a>
+      </figcaption>
+    </figure>
+  </div>
+
   <script src="assets/gallery-data.js"></script>
   <script>
-    const gallery = document.getElementById('galleryGrid');
-    const galleryScroll = document.getElementById('galleryScroll');
-    const scrollGalleryUp = document.getElementById('scrollGalleryUp');
-    const scrollGalleryDown = document.getElementById('scrollGalleryDown');
+    const gallery = document.getElementById('gallery');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxTitle = document.getElementById('lightboxTitle');
+    const lightboxDesc = document.getElementById('lightboxDesc');
+    const downloadImage = document.getElementById('downloadImage');
     const preferredOrder = [1, 13, 10, 4, 6, 8, 9, 11, 12, 3, 5, 7, 2, 0];
     const images = preferredOrder
       .map(id => window.SKZOO_GALLERY.find(item => item.id === id))
@@ -776,32 +755,41 @@
 
     function render(filter = 'All') {
       gallery.innerHTML = visibleImages(filter).map((item, index) => `
-        <article class="card ${index === 0 ? 'large' : ''}" aria-label="${item.title}">
+        <button class="card ${index === 0 ? 'large' : ''}" type="button" data-id="${item.id}" aria-label="Open ${item.title}">
           <img src="${item.thumb}" alt="${item.title}" loading="${index < 3 ? 'eager' : 'lazy'}" />
           <span class="caption">
             <span class="num">${String(index + 2).padStart(2, '0')}</span>
             <span class="card-title">${item.title}</span>
           </span>
-        </article>
+        </button>
       `).join('');
-      galleryScroll.scrollTo({ top: 0 });
-      requestAnimationFrame(updateScrollButtons);
     }
 
-    function scrollGallery(direction) {
-      galleryScroll.scrollBy({
-        top: direction * Math.max(galleryScroll.clientHeight * 0.82, 280),
-        behavior: 'smooth'
-      });
+    function openLightbox(id) {
+      const item = window.SKZOO_GALLERY.find(image => image.id === Number(id));
+      if (!item) return;
+      lightboxImage.src = item.src;
+      lightboxImage.alt = item.title;
+      lightboxTitle.textContent = item.title;
+      lightboxDesc.textContent = item.description;
+      downloadImage.href = item.src;
+      downloadImage.download = item.src.split('/').pop();
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
     }
 
-    function updateScrollButtons() {
-      const maxScroll = galleryScroll.scrollHeight - galleryScroll.clientHeight;
-      scrollGalleryUp.disabled = galleryScroll.scrollTop <= 4;
-      scrollGalleryDown.disabled = galleryScroll.scrollTop >= maxScroll - 4 || maxScroll <= 4;
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImage.removeAttribute('src');
+      lightboxImage.alt = '';
     }
 
     document.addEventListener('click', event => {
+      const card = event.target.closest('[data-id]');
+      if (card) openLightbox(card.dataset.id);
+      if (event.target.id === 'closeLightbox' || event.target.id === 'lightbox') closeLightbox();
+
       const tab = event.target.closest('[data-filter]');
       if (tab) {
         document.querySelectorAll('.tab').forEach(button => button.classList.remove('active'));
@@ -810,21 +798,8 @@
       }
     });
 
-    scrollGalleryUp.addEventListener('click', () => scrollGallery(-1));
-    scrollGalleryDown.addEventListener('click', () => scrollGallery(1));
-    galleryScroll.addEventListener('scroll', updateScrollButtons, { passive: true });
-    window.addEventListener('resize', updateScrollButtons);
-
-    galleryScroll.addEventListener('keydown', event => {
-      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
-        event.preventDefault();
-        scrollGallery(1);
-      }
-
-      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
-        event.preventDefault();
-        scrollGallery(-1);
-      }
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeLightbox();
     });
 
     render();
