@@ -389,14 +389,19 @@
       background:
         linear-gradient(180deg, rgba(7, 20, 36, 0.54), rgba(2, 8, 16, 0.34));
       box-shadow: inset 0 0 44px rgba(88, 189, 255, 0.035);
-      overflow: visible;
-      padding: 0 0 16px;
+      overflow: hidden;
+      padding: 18px 0 18px;
     }
 
     .gallery-scroll {
-      overflow: visible;
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
       scroll-behavior: smooth;
-      padding: 0 16px;
+      scroll-snap-type: x proximity;
+      padding: 0 72px 18px;
+      scrollbar-color: rgba(88, 189, 255, 0.72) rgba(255, 255, 255, 0.06);
+      scrollbar-width: thin;
     }
 
     .gallery-scroll:focus-visible {
@@ -404,69 +409,83 @@
       outline-offset: -2px;
     }
 
+    .gallery-scroll::-webkit-scrollbar {
+      height: 11px;
+    }
+
+    .gallery-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 999px;
+    }
+
+    .gallery-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #67c3ff, #1f79c9);
+      border-radius: 999px;
+    }
+
     .gallery-arrows {
-      position: sticky;
-      right: 16px;
-      top: 16px;
+      position: absolute;
+      inset: 0;
       z-index: 5;
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      width: max-content;
-      margin: 16px 16px -58px auto;
-      pointer-events: auto;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      pointer-events: none;
     }
 
     .gallery-arrow {
-      width: 42px;
-      height: 42px;
-      border: 1px solid rgba(88, 189, 255, 0.46);
+      width: 54px;
+      height: 54px;
+      border: 1px solid rgba(88, 189, 255, 0.64);
       border-radius: 999px;
       color: var(--blue);
-      background: rgba(1, 8, 16, 0.78);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32), inset 0 0 22px rgba(88, 189, 255, 0.08);
+      background: rgba(1, 8, 16, 0.88);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.42), inset 0 0 24px rgba(88, 189, 255, 0.12);
       display: grid;
       place-items: center;
       transition: 180ms ease;
+      pointer-events: auto;
     }
 
     .gallery-arrow::before {
       content: "";
-      width: 11px;
-      height: 11px;
+      width: 14px;
+      height: 14px;
       border-top: 2px solid currentColor;
       border-right: 2px solid currentColor;
     }
 
-    .gallery-arrow.up::before {
-      transform: translateY(3px) rotate(-45deg);
+    .gallery-arrow.left::before {
+      transform: translateX(3px) rotate(-135deg);
     }
 
-    .gallery-arrow.down::before {
-      transform: translateY(-3px) rotate(135deg);
+    .gallery-arrow.right::before {
+      transform: translateX(-3px) rotate(45deg);
     }
 
     .gallery-arrow:hover {
       border-color: rgba(88, 189, 255, 0.85);
       background: rgba(5, 24, 44, 0.9);
+      transform: scale(1.05);
     }
 
-    .gallery-arrow:disabled {
-      cursor: default;
-      opacity: 0.32;
+    .gallery-arrow:active {
+      transform: scale(0.96);
     }
 
     .gallery {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
       gap: 14px;
-      padding-top: 2px;
+      align-items: stretch;
+      width: max-content;
     }
 
     .card {
+      flex: 0 0 clamp(285px, 42vw, 520px);
       border: 1px solid rgba(111, 199, 255, 0.2);
       border-radius: 10px;
-      min-height: 236px;
+      height: clamp(285px, 36vw, 420px);
       overflow: hidden;
       position: relative;
       isolation: isolate;
@@ -479,8 +498,12 @@
     }
 
     .card.large {
-      grid-column: 1 / -1;
-      min-height: 476px;
+      flex-basis: min(860px, calc(100vw - 170px));
+      height: clamp(360px, 43vw, 520px);
+    }
+
+    .gallery-shell.is-moving .card {
+      transform: translateY(-4px);
     }
 
     .card img {
@@ -650,23 +673,26 @@
       }
 
       .gallery {
-        grid-template-columns: 1fr;
+        gap: 12px;
       }
 
       .gallery-arrows {
-        right: 12px;
-        top: 12px;
-        margin: 12px 12px -52px auto;
+        padding: 0 10px;
       }
 
       .gallery-arrow {
-        width: 38px;
-        height: 38px;
+        width: 44px;
+        height: 44px;
+      }
+
+      .gallery-scroll {
+        padding: 0 56px 16px;
       }
 
       .card,
       .card.large {
-        min-height: 285px;
+        flex-basis: min(78vw, 340px);
+        height: 285px;
       }
 
       .cta {
@@ -721,10 +747,10 @@
 
     <section class="gallery-shell" id="gallery" aria-label="SKZOO gallery">
       <div class="gallery-arrows" aria-label="Gallery scroll controls">
-        <button class="gallery-arrow up" id="scrollGalleryUp" type="button" aria-label="Scroll gallery up"></button>
-        <button class="gallery-arrow down" id="scrollGalleryDown" type="button" aria-label="Scroll gallery down"></button>
+        <button class="gallery-arrow left" id="scrollGalleryLeft" type="button" aria-label="Scroll gallery left" onclick="scrollGalleryRail(-1)"></button>
+        <button class="gallery-arrow right" id="scrollGalleryRight" type="button" aria-label="Scroll gallery right" onclick="scrollGalleryRail(1)"></button>
       </div>
-      <div class="gallery-scroll" id="galleryScroll" tabindex="0" aria-label="Gallery images">
+      <div class="gallery-scroll" id="galleryScroll" tabindex="0" aria-label="Scrollable gallery images">
         <div class="gallery" id="galleryGrid"></div>
       </div>
     </section>
@@ -745,8 +771,8 @@
     const gallery = document.getElementById('galleryGrid');
     const galleryShell = document.getElementById('gallery');
     const galleryScroll = document.getElementById('galleryScroll');
-    const scrollGalleryUp = document.getElementById('scrollGalleryUp');
-    const scrollGalleryDown = document.getElementById('scrollGalleryDown');
+    const scrollGalleryLeft = document.getElementById('scrollGalleryLeft');
+    const scrollGalleryRight = document.getElementById('scrollGalleryRight');
     const preferredOrder = [1, 13, 10, 4, 6, 8, 9, 11, 12, 3, 5, 7, 2, 0];
     const images = preferredOrder
       .map(id => window.SKZOO_GALLERY.find(item => item.id === id))
@@ -771,23 +797,31 @@
       if (shouldJump) {
         galleryShell.scrollIntoView({ block: 'start', behavior: 'smooth' });
       }
-      requestAnimationFrame(updateScrollButtons);
+      requestAnimationFrame(() => galleryScroll.scrollTo({ left: 0, behavior: 'smooth' }));
     }
 
-    function scrollGallery(direction) {
-      window.scrollBy({
-        top: direction * Math.max(window.innerHeight * 0.78, 420),
-        behavior: 'smooth'
-      });
+    function pulseGallery() {
+      galleryShell.classList.add('is-moving');
+      window.setTimeout(() => galleryShell.classList.remove('is-moving'), 220);
     }
 
-    function updateScrollButtons() {
-      const bounds = galleryShell.getBoundingClientRect();
-      const topPassed = bounds.top < 18;
-      const bottomBelow = bounds.bottom > window.innerHeight + 18;
-      scrollGalleryUp.disabled = !topPassed;
-      scrollGalleryDown.disabled = !bottomBelow;
+    function scrollGalleryRail(direction) {
+      const maxScroll = galleryScroll.scrollWidth - galleryScroll.clientWidth;
+      const amount = Math.max(galleryScroll.clientWidth * 0.86, 320);
+      const next = galleryScroll.scrollLeft + (direction * amount);
+
+      if (direction > 0 && next >= maxScroll - 8) {
+        galleryScroll.scrollTo({ left: 0, behavior: 'smooth' });
+      } else if (direction < 0 && next <= 8) {
+        galleryScroll.scrollTo({ left: maxScroll, behavior: 'smooth' });
+      } else {
+        galleryScroll.scrollBy({ left: direction * amount, behavior: 'smooth' });
+      }
+
+      pulseGallery();
     }
+
+    window.scrollGalleryRail = scrollGalleryRail;
 
     document.addEventListener('click', event => {
       const tab = event.target.closest('[data-filter]');
@@ -798,20 +832,15 @@
       }
     });
 
-    scrollGalleryUp.addEventListener('click', () => scrollGallery(-1));
-    scrollGalleryDown.addEventListener('click', () => scrollGallery(1));
-    window.addEventListener('scroll', updateScrollButtons, { passive: true });
-    window.addEventListener('resize', updateScrollButtons);
-
     galleryScroll.addEventListener('keydown', event => {
-      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+      if (event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'PageDown') {
         event.preventDefault();
-        scrollGallery(1);
+        scrollGalleryRail(1);
       }
 
-      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'PageUp') {
         event.preventDefault();
-        scrollGallery(-1);
+        scrollGalleryRail(-1);
       }
     });
 
