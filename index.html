@@ -588,6 +588,53 @@
       line-height: 1;
     }
 
+    .lightbox-nav {
+      position: fixed;
+      top: 50%;
+      z-index: 52;
+      width: 56px;
+      height: 56px;
+      border: 1px solid rgba(88, 189, 255, 0.54);
+      border-radius: 999px;
+      color: var(--blue);
+      background: rgba(1, 8, 16, 0.82);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.36), inset 0 0 24px rgba(88, 189, 255, 0.1);
+      display: grid;
+      place-items: center;
+      transform: translateY(-50%);
+      transition: 180ms ease;
+    }
+
+    .lightbox-nav:hover {
+      border-color: rgba(88, 189, 255, 0.86);
+      background: rgba(5, 24, 44, 0.94);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .lightbox-nav::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      border-top: 2px solid currentColor;
+      border-right: 2px solid currentColor;
+    }
+
+    .lightbox-nav.prev {
+      left: 28px;
+    }
+
+    .lightbox-nav.prev::before {
+      transform: translateX(3px) rotate(-135deg);
+    }
+
+    .lightbox-nav.next {
+      right: 28px;
+    }
+
+    .lightbox-nav.next::before {
+      transform: translateX(-3px) rotate(45deg);
+    }
+
     @media (max-width: 840px) {
       .page {
         padding: 22px 18px 32px;
@@ -660,6 +707,26 @@
       .lightbox figcaption {
         display: block;
       }
+
+      .lightbox-nav {
+        top: auto;
+        bottom: 22px;
+        width: 48px;
+        height: 48px;
+        transform: none;
+      }
+
+      .lightbox-nav:hover {
+        transform: scale(1.05);
+      }
+
+      .lightbox-nav.prev {
+        left: 18px;
+      }
+
+      .lightbox-nav.next {
+        right: 18px;
+      }
     }
   </style>
 </head>
@@ -722,6 +789,7 @@
 
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <button class="close" id="closeLightbox" type="button" aria-label="Close image viewer">x</button>
+    <button class="lightbox-nav prev" id="prevImage" type="button" aria-label="Previous image"></button>
     <figure>
       <img id="lightboxImage" alt="" />
       <figcaption>
@@ -732,6 +800,7 @@
         <a class="btn" id="downloadImage" href="#" download>Download</a>
       </figcaption>
     </figure>
+    <button class="lightbox-nav next" id="nextImage" type="button" aria-label="Next image"></button>
   </div>
 
   <script src="assets/gallery-data.js"></script>
@@ -746,6 +815,8 @@
     const images = preferredOrder
       .map(id => window.SKZOO_GALLERY.find(item => item.id === id))
       .filter(Boolean);
+    let activeImages = images;
+    let currentIndex = 0;
 
     function visibleImages(filter) {
       if (filter === 'All') return images;
@@ -754,7 +825,8 @@
     }
 
     function render(filter = 'All') {
-      gallery.innerHTML = visibleImages(filter).map((item, index) => `
+      activeImages = visibleImages(filter);
+      gallery.innerHTML = activeImages.map((item, index) => `
         <button class="card ${index === 0 ? 'large' : ''}" type="button" data-id="${item.id}" aria-label="Open ${item.title}">
           <img src="${item.thumb}" alt="${item.title}" loading="${index < 3 ? 'eager' : 'lazy'}" />
           <span class="caption">
@@ -765,8 +837,10 @@
       `).join('');
     }
 
-    function openLightbox(id) {
-      const item = window.SKZOO_GALLERY.find(image => image.id === Number(id));
+    function showLightboxItem(index) {
+      if (!activeImages.length) return;
+      currentIndex = (index + activeImages.length) % activeImages.length;
+      const item = activeImages[currentIndex];
       if (!item) return;
       lightboxImage.src = item.src;
       lightboxImage.alt = item.title;
@@ -774,8 +848,17 @@
       lightboxDesc.textContent = item.description;
       downloadImage.href = item.src;
       downloadImage.download = item.src.split('/').pop();
+    }
+
+    function openLightbox(id) {
+      const itemIndex = activeImages.findIndex(image => image.id === Number(id));
+      showLightboxItem(itemIndex >= 0 ? itemIndex : 0);
       lightbox.classList.add('open');
       lightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function moveLightbox(direction) {
+      showLightboxItem(currentIndex + direction);
     }
 
     function closeLightbox() {
@@ -789,6 +872,8 @@
       const card = event.target.closest('[data-id]');
       if (card) openLightbox(card.dataset.id);
       if (event.target.id === 'closeLightbox' || event.target.id === 'lightbox') closeLightbox();
+      if (event.target.id === 'prevImage') moveLightbox(-1);
+      if (event.target.id === 'nextImage') moveLightbox(1);
 
       const tab = event.target.closest('[data-filter]');
       if (tab) {
@@ -799,7 +884,11 @@
     });
 
     document.addEventListener('keydown', event => {
+      const lightboxOpen = lightbox.classList.contains('open');
+      if (!lightboxOpen) return;
       if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') moveLightbox(-1);
+      if (event.key === 'ArrowRight') moveLightbox(1);
     });
 
     render();
