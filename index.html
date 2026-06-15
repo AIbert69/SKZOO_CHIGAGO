@@ -389,17 +389,14 @@
       background:
         linear-gradient(180deg, rgba(7, 20, 36, 0.54), rgba(2, 8, 16, 0.34));
       box-shadow: inset 0 0 44px rgba(88, 189, 255, 0.035);
-      overflow: hidden;
+      overflow: visible;
+      padding: 0 0 16px;
     }
 
     .gallery-scroll {
-      max-height: min(78vh, 820px);
-      overflow-y: auto;
-      overscroll-behavior: contain;
+      overflow: visible;
       scroll-behavior: smooth;
-      padding: 0 16px 16px 0;
-      scrollbar-color: rgba(88, 189, 255, 0.72) rgba(255, 255, 255, 0.06);
-      scrollbar-width: thin;
+      padding: 0 16px;
     }
 
     .gallery-scroll:focus-visible {
@@ -407,27 +404,17 @@
       outline-offset: -2px;
     }
 
-    .gallery-scroll::-webkit-scrollbar {
-      width: 10px;
-    }
-
-    .gallery-scroll::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.055);
-      border-radius: 999px;
-    }
-
-    .gallery-scroll::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #67c3ff, #1f79c9);
-      border-radius: 999px;
-    }
-
     .gallery-arrows {
-      position: absolute;
+      position: sticky;
       right: 16px;
       top: 16px;
       z-index: 5;
-      display: grid;
+      display: flex;
+      justify-content: flex-end;
       gap: 10px;
+      width: max-content;
+      margin: 16px 16px -58px auto;
+      pointer-events: auto;
     }
 
     .gallery-arrow {
@@ -666,14 +653,10 @@
         grid-template-columns: 1fr;
       }
 
-      .gallery-scroll {
-        max-height: 68vh;
-        padding-right: 12px;
-      }
-
       .gallery-arrows {
         right: 12px;
         top: 12px;
+        margin: 12px 12px -52px auto;
       }
 
       .gallery-arrow {
@@ -741,7 +724,7 @@
         <button class="gallery-arrow up" id="scrollGalleryUp" type="button" aria-label="Scroll gallery up"></button>
         <button class="gallery-arrow down" id="scrollGalleryDown" type="button" aria-label="Scroll gallery down"></button>
       </div>
-      <div class="gallery-scroll" id="galleryScroll" tabindex="0" aria-label="Scrollable gallery images">
+      <div class="gallery-scroll" id="galleryScroll" tabindex="0" aria-label="Gallery images">
         <div class="gallery" id="galleryGrid"></div>
       </div>
     </section>
@@ -760,6 +743,7 @@
   <script src="assets/gallery-data.js"></script>
   <script>
     const gallery = document.getElementById('galleryGrid');
+    const galleryShell = document.getElementById('gallery');
     const galleryScroll = document.getElementById('galleryScroll');
     const scrollGalleryUp = document.getElementById('scrollGalleryUp');
     const scrollGalleryDown = document.getElementById('scrollGalleryDown');
@@ -774,7 +758,7 @@
       return images.filter(item => item.category === filter);
     }
 
-    function render(filter = 'All') {
+    function render(filter = 'All', shouldJump = false) {
       gallery.innerHTML = visibleImages(filter).map((item, index) => `
         <article class="card ${index === 0 ? 'large' : ''}" aria-label="${item.title}">
           <img src="${item.thumb}" alt="${item.title}" loading="${index < 3 ? 'eager' : 'lazy'}" />
@@ -784,21 +768,25 @@
           </span>
         </article>
       `).join('');
-      galleryScroll.scrollTo({ top: 0 });
+      if (shouldJump) {
+        galleryShell.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      }
       requestAnimationFrame(updateScrollButtons);
     }
 
     function scrollGallery(direction) {
-      galleryScroll.scrollBy({
-        top: direction * Math.max(galleryScroll.clientHeight * 0.82, 280),
+      window.scrollBy({
+        top: direction * Math.max(window.innerHeight * 0.78, 420),
         behavior: 'smooth'
       });
     }
 
     function updateScrollButtons() {
-      const maxScroll = galleryScroll.scrollHeight - galleryScroll.clientHeight;
-      scrollGalleryUp.disabled = galleryScroll.scrollTop <= 4;
-      scrollGalleryDown.disabled = galleryScroll.scrollTop >= maxScroll - 4 || maxScroll <= 4;
+      const bounds = galleryShell.getBoundingClientRect();
+      const topPassed = bounds.top < 18;
+      const bottomBelow = bounds.bottom > window.innerHeight + 18;
+      scrollGalleryUp.disabled = !topPassed;
+      scrollGalleryDown.disabled = !bottomBelow;
     }
 
     document.addEventListener('click', event => {
@@ -806,13 +794,13 @@
       if (tab) {
         document.querySelectorAll('.tab').forEach(button => button.classList.remove('active'));
         tab.classList.add('active');
-        render(tab.dataset.filter);
+        render(tab.dataset.filter, true);
       }
     });
 
     scrollGalleryUp.addEventListener('click', () => scrollGallery(-1));
     scrollGalleryDown.addEventListener('click', () => scrollGallery(1));
-    galleryScroll.addEventListener('scroll', updateScrollButtons, { passive: true });
+    window.addEventListener('scroll', updateScrollButtons, { passive: true });
     window.addEventListener('resize', updateScrollButtons);
 
     galleryScroll.addEventListener('keydown', event => {
